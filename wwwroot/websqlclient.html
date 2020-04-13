@@ -1,0 +1,822 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" charset="utf-8" content="width=device-width, initial-scale=1">
+    <title>Web Sql Client</title>
+    <link rel="shortcut icon" href="#" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Sarpanch">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+    <style>
+        html, body {
+            height: 100%;
+        }
+
+        .container {
+            height: 100%;
+            background: #a48fad;
+            height: 100%;
+        }
+
+        .header {
+            background: black;
+            height: 60px;
+            text-align: center;
+            font-family: "Sarpanch";   
+            font-size: 40px;
+            font-weight: bold;
+            color: rgb(146, 140, 160);
+            text-shadow: 1px 2px 10px #9397b5;
+            position: relative;
+        }
+
+        .helpItem {
+            width: 100%;
+            margin-bottom: 8px;
+            border-bottom: 1px solid gray;
+        }
+
+        .content {
+            display: block;
+            height: -webkit-calc(100% - 150px);
+            height: -moz-calc(100% - 150px);
+            height: calc(100% - 70px);
+            padding: 10px;
+        }
+
+        .shadowed-box {
+            margin: 5px 10px 5px 10px;
+            padding: 5px 4px 5px 4px;
+            color: gray;
+            box-shadow: 1px 1px 7px 3px rgb(25, 25, 25)
+        }
+
+        .left-pane {
+            display: block;
+            -ms-overflow-style: none;
+            overflow: scroll;
+            overflow: -moz-scrollbars-none;
+            height: 100%;
+            min-width: 180px;
+            float: left;
+            padding: 0px;
+         }
+
+        .left-pane::-webkit-scrollbar {
+            display: none;
+        }
+
+        .right-pane-container {
+            width: calc(100% - 230px);
+        }
+
+        @media only screen and (max-width: 770px) {
+            .right-pane-container {
+                width: calc(100% - 20px);
+            }
+            .left-pane {
+                width: calc(100% - 20px);
+            }
+        }
+
+        .right-pane {
+            display: block;
+            -ms-overflow-style: none;
+            overflow: scroll;
+            overflow: -moz-scrollbars-none;
+            width: calc(100% - 300px);
+            float: left;
+            padding: 0px;
+            /*width: -webkit-fill-available;*/
+        }
+
+        .right-pane::-webkit-scrollbar {
+            display: none;
+        }
+
+        .section {
+            background: darkgray;
+        }
+
+        .list-header {
+            background: rgb(47, 41, 51);
+            color: rgb(150, 144, 175);
+            font-size: 15px;
+            font-weight: bold;
+            height: 30px;
+            text-align: left;
+            padding-top: 4px;
+            padding-left: 5px;
+            cursor: pointer;
+        }
+
+        .list-item {
+            background: rgb(168, 147, 175);
+            color: black;
+            font-size: 13px;
+            font-weight: normal;
+            height: 25px;
+            padding: 3px 2px 4px 7px;
+            border-bottom: 1px solid black;
+            z-index: 0;
+            position: relative;
+        }
+
+        .text-area {
+            background: rgb(168, 147, 177);
+            font-size: 13px;
+            font-weight: normal;
+            max-height: 300px;
+            overflow: scroll;
+            overflow: -moz-scrollbars-none;
+            padding: 5px;
+        }
+
+        .text-area::-webkit-scrollbar {
+            display: none;
+        }
+
+        .grid-area {
+            background: rgb(128, 105, 138);
+            font-size: 13px;
+            font-weight: normal;
+            /*max-height: 500px;*/
+            min-height: 150px;
+            overflow: scroll;
+            overflow: -moz-scrollbars-none;
+            padding: 5px 0px;
+        }
+
+        .grid-area::-webkit-scrollbar {
+            display: none;
+        }
+
+        .testborder {
+            border: 4px solid red;
+        }
+
+        .button {
+            height: 25px;
+            background: black;
+            color: rgb(171, 165, 194);
+            border: 1px solid rgb(93, 89, 105);
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .helpIcon {
+            position: absolute;
+            z-index: 2;
+            display: block;
+            right: 25px;
+            top: 12px;
+            font-size: 25px; 
+            text-shadow: none;
+        }
+
+        .list-item:hover .delDBConnIcon {
+            display: block;
+        }
+
+        .delDBConnIcon {
+            position: absolute;
+            z-index: 2;
+            display: none;
+            right: 5px;
+            top: 3px;
+        }
+
+        .list-item:hover .delSavedQueryIcon {
+            display: block;
+        }
+
+        .delSavedQueryIcon {
+            position: absolute;
+            z-index: 2;
+            display: none;
+            right: 5px;
+            top: 3px;
+        }
+
+        .addDBConnectionIcon {
+            position: absolute;
+            z-index: 2;
+            display: block;
+            right: 10px;
+            top: 3px;
+        }
+
+        .downloadIcon {
+            position: absolute;
+            z-index: 2;
+            display: block;
+            right: 15px;
+            top: 7px;
+        }
+
+        .ag-header-row {
+            background: black;
+        }
+
+        .ag-header-cell {
+            border-right: 1px solid #b5abb9;
+            background: rgb(60, 54, 64);
+        }
+
+        ::-webkit-scrollbar {
+            width: 15px;
+        }
+
+        /* Track */
+        ::-webkit-scrollbar-track {
+            box-shadow: inset 0 0 4px 1px rgb(23, 22, 25); 
+            border-radius: 1px;
+        }
+        
+        /* Handle */
+        ::-webkit-scrollbar-thumb {
+            background: rgb(92, 73, 99); 
+            border-radius: 1px;
+        }
+
+        /* Handle on hover */
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4e445e; 
+        }
+
+		/* Spinner classes */
+		.loader {
+			position: relative;
+			border: 16px solid #f3f3f3;
+			border-radius: 50%;
+			border-top: 16px solid #3498db;
+			width: 70px;
+			height: 70px;
+			left:50%;
+			top:50%;
+			-webkit-animation: spin 2s linear infinite; /* Safari */
+			animation: spin 2s linear infinite;
+		}
+
+		#overlay{
+			position: absolute;
+			top:0px;
+			left:0px;
+			width: 100%;
+			height: 100%;
+			background: black;
+			opacity: .5;
+			display: none;
+		}
+		
+		@-webkit-keyframes spin {
+		  0% { -webkit-transform: rotate(0deg); }
+		  100% { -webkit-transform: rotate(360deg); }
+		}
+
+		@keyframes spin {
+		  0% { transform: rotate(0deg); }
+		  100% { transform: rotate(360deg); }
+		}
+
+		</style>
+
+    <script src="https://unpkg.com/react@15/dist/react.min.js"></script>
+    <script src="https://unpkg.com/react-dom@15/dist/react-dom.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.24/browser.min.js"></script>
+    <script src="https://unpkg.com/ag-grid-community/dist/ag-grid-community.min.js"></script>
+    <script type="text/babel">
+
+        class WebSqlClient extends React.Component {
+            constructor(props) {
+                super(props);
+
+                this.renderDatabaseName = this.renderDatabaseName.bind(this);
+
+                var queries = getSavedQueryNames();
+
+                this.state = {
+                    databases : this.props.databases,
+                    savedQueries : queries,
+                    tables : this.props.tables
+                };
+
+                this.getDBNames();
+            }
+
+            getDBNames() {
+                fetch(baseUrl + '/websqlclient/databases')
+                    .then(res => res.json())
+                    .then(res => {
+                        this.setState({databases: res});
+                    });
+            }
+
+            getDBTables(dbName) {
+				showSpinner();
+                selectedDb = dbName;
+                fetch(baseUrl + '/websqlclient/tables?dbName='+dbName)
+                    .then(res => res.json())
+                    .then(res => {
+						hideSpinner();
+                        if (res.hasOwnProperty('error') && res.error.length > 0) {
+                            alert("Failed connecting to selected DB: \n" + res.error);
+                            this.setState({tables: []});
+                            return;
+                        } else {
+                            this.setState({tables: res});
+                        }
+                    });
+            }
+            
+            deleteSavedQuery(queryName) {
+                var confirmMsg = "Are you sure you want to delete Saved query: " + queryName;
+                if (confirm(confirmMsg)) {
+                    localStorage.removeItem(queryName);
+                    
+                    let queries = getSavedQueryNames();
+                    this.setState({savedQueries: queries});
+                }
+            }
+
+            deleteDBConn(dbName) {
+                var confirmMsg = "Are you sure you want to delete DB Connection: " + dbName;
+                if (confirm(confirmMsg)) {
+                    deleteDBConnection(dbName);
+                }
+            }
+
+            componentDidMount(){
+                globalVar.refreshSavedQueries = (queries) => {
+                    // `this` refers to our react component
+                    this.setState({savedQueries: queries});
+                };
+
+                globalVar.refreshDBConnections = (dbConnections) => {
+                    // `this` refers to our react component
+                    this.setState({databases: dbConnections});
+                };
+            }   
+
+            renderDatabaseName(dbName) {
+                //console.log("renderDatabaseName :  " + dbName);
+                return (
+                    <div className="list-item">
+                        <input type="radio" id={dbName} name="db" value={dbName} style={{verticalAlign: "middle", margin: "0px"}} onClick={() => this.getDBTables(dbName)} />
+                        <label for={dbName} style={{verticalAlign: "middle", margin: "0px", fontWeight: "normal"}}>&nbsp;{dbName}</label>
+                        <div className="delDBConnIcon" onClick={() => this.deleteDBConn(String(dbName))}>
+                            <i className="fa fa-trash fa-lg" style={{color:"#980909"}}></i>
+                        </div>
+                    </div>);
+            }
+
+            renderSavedQueryName(savedSqlName) {
+                return (
+                    <div className="list-item" onDoubleClick={() => savedQueryDblClick(String(savedSqlName), 'queryText')}>{savedSqlName}
+                        <div className="delSavedQueryIcon" onClick={() => this.deleteSavedQuery(String(savedSqlName))}>
+                            <i className="fa fa-trash fa-lg" style={{color:"#980909"}}></i>
+                        </div>
+                    </div>);
+            }
+
+            renderTableName(tableName) {
+                return (
+                    <div className="list-item" title={tableName} onDoubleClick={() => tableNameDblClick(String(tableName), 'queryText')}>{tableName.substr(tableName.lastIndexOf('.') + 1)}
+                    </div>);
+            }
+
+            render() {
+
+                return (
+                    <div>
+                        <div className="section">
+                            <div className="list-header collapsible" onClick={() => toggleDivDisplay('divDatabases')}>
+                                Databases
+                                <div className="addDBConnectionIcon" data-toggle="modal" data-target="#dbConnectionModal" >
+                                    <i className="fa fa-plus fa-lg" style={{color: "#aaaaaa", fontSize: "15px"}}></i>
+                                </div>
+                            </div>
+                            <div id="divDatabases" style={{display:"block", maxHeight:"125px",  overflowX:"hidden", overflowY:"auto"}}>
+                                {this.state.databases.map(db => this.renderDatabaseName(db))}   
+                            </div>
+                        </div>
+                        <div className="section">
+                            <div className="list-header collapsible" onClick={() => toggleDivDisplay('divSavedQueries')}>Saved Queries</div>
+                            <div id="divSavedQueries" style={{display:"block", maxHeight:"125px", overflowX:"hidden", overflowY:"auto"}}>
+                                {this.state.savedQueries.map(savedSqlName => this.renderSavedQueryName(savedSqlName))}
+                            </div>
+                        </div>
+                        <div className="section">
+                            <div className="list-header collapsible" onClick={() => toggleDivDisplay('divTables')}>Tables</div>
+                            <div id="divTables" style={{display:"block"}}>
+                                {this.state.tables.map(tableName => this.renderTableName(tableName))}
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+        }
+
+        ReactDOM.render(
+            <WebSqlClient databases={dbs} savedQueries={savedSqls} tables={dbTables} />,
+            document.getElementById('leftPane')
+            );
+    </script>
+</head>
+<body>
+    <div id="container" class="container">
+        <div class="row">
+            <div class="header">Web SQL Client
+                <div class="helpIcon" data-toggle="modal" data-target="#helpModal">
+                    <i class="fa fa-question-circle" style="color:rgb(146, 140, 160);"></i>
+                </div>
+            </div>
+        </div>
+        <div class="row content">
+            <div id="leftPane" class="col-sm-2 col-md-2 col-lg-2 left-pane shadowed-box">
+            </div>
+            <div class="right-pane-container" style="height: 100%; float: left; position: relative;">
+                <div id="rightPaneTop" class="col-sm-10 col-md-10 col-lg-10 right-pane shadowed-box" style="margin-bottom: 15px; width: 100%">
+                    <div class="section">
+                        <div class="list-header collapsible" onclick="javascript:toggleDisplay('rightPaneTop', 'rightPaneBottom', 'queryResultGrid')">Query</div>
+                        <div id="queryarea" class="text-area" style="display:block">
+                            <textarea id="queryText" name="query" tabindex="1" rows="5" style="resize:none; background-color: rgb(187, 171, 189); color: black; border:none; width: 100%"></textarea>
+                            <div style="width: 100%; padding: 3px 5px 3px 0px;">
+                                <input type="button" class="button" tabindex="2" value="Execute" onclick="executeQuery('queryText')" />
+                                <input type="button" class="button" tabindex="3" value="Clear" onclick="clearQuery('queryText')" />
+                                <input type="button" class="button" data-toggle="modal" data-target="#myModal" style="float: right" tabindex="3" value="Save Query" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="rightPaneBottom" class="col-sm-10 col-md-10 col-lg-10 right-pane shadowed-box" style="height: calc(100% - 190px); width: 100%">
+                    <div class="section" style="height: 100%">
+                        <div class="list-header collapsible">Query Result
+                            <div class="downloadIcon" onclick="downloadResultsAsCsv()">
+                                <i class="fa fa-download" style="color:rgb(146, 140, 160);"></i>
+                            </div>
+                        </div>
+                        <div id="gridarea" class="grid-area" style="display:block; height: 100%">
+                            <div id="queryResultGrid" domLayout='autoHeight' style="height:calc(100% - 25px); width:100%;" class="ag-theme-balham-dark"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="helpModal" role="dialog">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content" style="border-radius: 8px;">
+                <div class="modal-header" style="background: rgb(106, 96, 113); color: #e6dbdb; border-radius: 6px 6px 0 0;">
+                    <button type="button" class="close" data-dismiss="modal" style="color: white">&times;</button>
+                    <h4 class="modal-title">Help</h4>
+                </div>
+                <div class="modal-body" style="background: #c8b9d6;">
+                    <div class="helpItem">Add new DB connection by clicking '+' icon on 'Databases' section header</div>
+                    <div class="helpItem">Delete a DB connection by clicking Trash icon next to the DB name</div>
+                    <div class="helpItem">Selecting a Database will list the tables in it - under 'Tables' section</div>
+                    <div class="helpItem">Double click on displayed table name to auto populate 'select' query for the table</div>
+                    <div class="helpItem">Click on 'Query' section header to expand/shrink the 'Query Result' section</div>
+                    <div class="helpItem">Click 'Save Query' button and provide a name - to add sql to list in 'Saved Queries' section</div>
+                    <div class="helpItem">Click on Delete icon next to the saved query name to delete it</div>
+                    <div class="helpItem">Double click on displayed saved query name to populate the saved sql in 'Query' section</div>
+                    <div class="helpItem">Click on Download icon in 'Query Result' section header to save query results in csv format</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="myModal" role="dialog">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content" style="border-radius: 8px;">
+                <div class="modal-header" style="background: rgb(106, 96, 113); color: #e6dbdb; border-radius: 6px 6px 0 0;">
+                    <button type="button" class="close" data-dismiss="modal" style="color: white">&times;</button>
+                    <h4 class="modal-title">Enter Query Name</h4>
+                </div>
+                <div class="modal-body" style="background: #c8b9d6;">
+                    <input type="text" id="queryName" value="" tabindex="1" size="22" style="margin-top: 5px" />
+                    <button type="button" class="btn btn-default" style="float:right;" data-dismiss="modal" onclick="return saveQuery('queryName', 'queryText')">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="dbConnectionModal" role="dialog">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content" style="border-radius: 8px;">
+                <div class="modal-header" style="background: rgb(106, 96, 113); color: #e6dbdb; border-radius: 6px 6px 0 0;">
+                    <button type="button" class="close" data-dismiss="modal" style="color: white">&times;</button>
+                    <h4 class="modal-title">New DB Connecton</h4>
+                </div>
+                <div class="modal-body" style="background: #c8b9d6;">
+                    <table style="width: 100%;">
+                        <tr>
+                            <td style="width: 100px">DB Name</td>
+                            <td style="padding-left: 15px;">Connection String</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <input type="text" id="dbName" value="" tabindex="1" size="20" style="margin-top: 5px" />
+                            </td>
+                            <td style="padding-left: 15px;">
+                                <input type="text" id="dbConnectionString" value="" tabindex="2" size="50" style="margin-top: 5px" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" style="padding-top: 10px;">
+                                <button type="button" class="btn btn-default" style="float:right;" data-dismiss="modal" onclick="return saveDBConnection('dbName', 'dbConnectionString')">Save</button>
+                            </td>
+                        </tr>
+                    </table>
+                 </div>
+            </div>
+        </div>
+      </div>
+
+	  <div id="overlay">
+		  <div class="loader"></div>
+	  </div>
+	  
+    <script>
+        var baseUrl = 'http://' + window.location.hostname + ':' + window.location.port;
+
+        var dbs = [ ];
+        var savedSqls = [ ];
+        var dbTables = [ ];
+        var globalVar = { 
+            refreshSavedQueries: function(queries) {},
+            refreshDBConnections: function(dbConnections) {}
+        };
+        var selectedDb = "";
+        var queryDivHeight = "170px";
+
+        var queryDivHeightExpanded = "170px";
+        var queryDivHeightCollapsed = "30px";
+        var resultsDivHeightExpanded = "calc(100% - 50px)";
+        var resultsDivHeightCollapsed = "calc(100% - 190px)";
+        var resultsGridHeightExpanded = "calc(100% - 30px)"; 
+        var resultsGridHeightCollapsed = "calc(100% - 20px)"; 
+
+        var defaultColDefs = [
+                { headerName: "", field: "A" },
+                { headerName: "", field: "B" },
+                { headerName: "", field: "C" },
+                { headerName: "", field: "D" },
+                { headerName: "", field: "E" }
+            ];
+        var defaultRowData = [
+                { A: "", B: "", C: "", D: "", E:"" }
+            ];
+
+        var gridOptions = {
+            columnDefs:  defaultColDefs,
+            rowData: defaultRowData,
+            pagination: true,
+            enableFilter: true,
+            enableCellTextSelection: true,
+            enableRangeSelection: true
+        };
+
+        gridOptions.getRowStyle = function(params) {
+            if (params.node.rowIndex % 2 === 0) {
+                return { background: '#bbabbd', color: "black" }
+            } else {
+                return { background: '#b1a0bd', color: "black" }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            let gridDiv = document.querySelector('#queryResultGrid');
+            new agGrid.Grid(gridDiv, gridOptions);
+        });
+
+		function showSpinner() {
+			document.getElementById('overlay').style.display = "block";
+		}
+
+		function hideSpinner() {
+			document.getElementById('overlay').style.display = "none";
+		}
+		
+        function toggleDivDisplay(divId) {
+            var divElem = document.getElementById(divId);
+
+            if (divElem.style.display == "" || divElem.style.display == "none")
+                divElem.style.display = "block";
+            else
+                divElem.style.display = "none";
+        }
+
+      function toggleDisplay(topDivId, bottomDivId, gridId) {
+            var topDiv = document.getElementById(topDivId);
+            resizeQueryAndResultsDiv(topDiv.style.height == queryDivHeightExpanded ? false : true, topDivId, bottomDivId, gridId);
+      }
+
+      function resizeQueryAndResultsDiv(expandQueryDiv, topDivId, bottomDivId, gridId) {
+        var topDiv = document.getElementById(topDivId);
+        var bottomDiv = document.getElementById(bottomDivId);
+        var gridDiv = document.getElementById(gridId);
+        
+        if (expandQueryDiv) {
+            topDiv.style.height = queryDivHeightExpanded;
+            bottomDiv.style.height = resultsDivHeightCollapsed;
+            gridDiv.style.height = resultsGridHeightCollapsed;
+        } else {
+            topDiv.style.height = queryDivHeightCollapsed;
+            topDiv.style.overflow = "hidden";
+            bottomDiv.style.height = resultsDivHeightExpanded;
+            gridDiv.style.height = resultsGridHeightExpanded;
+        }
+      }
+
+      function savedQueryDblClick(queryName, targetControlId) {
+            var query = localStorage.getItem(queryName);;
+            document.getElementById(targetControlId).value = query;
+            resizeQueryAndResultsDiv(true, 'rightPaneTop', 'rightPaneBottom', 'queryResultGrid');
+      }
+
+      function tableNameDblClick(tableName, targetControlId) {
+            var query = "SELECT TOP 1000 * FROM " + tableName;
+            document.getElementById(targetControlId).value = query;
+            resizeQueryAndResultsDiv(true, 'rightPaneTop', 'rightPaneBottom', 'queryResultGrid');
+      }
+
+      function clearQuery(queryTextCtrlId) {
+            document.getElementById(queryTextCtrlId).value = "";
+      }
+
+      function executeQuery(queryTextCtrlId) {
+
+            if (selectedDb === "") {
+                alert('Please select a Database to execute sql');
+                return;
+            }
+
+            var query = document.getElementById(queryTextCtrlId).value;
+
+            if (query.length == 0) {
+                alert('Please type the query to execute');
+                return false;
+            } else {
+                //$("body").css("cursor", "progress");
+                getQueryResult(selectedDb, query);
+                return true;
+            }
+      }
+
+      function updateQueryResultGrid(jsonArray) {
+            var keys = [];
+            var colDefs = [];
+
+            //$("body").css("cursor", "default");
+
+            Object.keys(jsonArray[0]).forEach(function(key){
+                if(keys.indexOf(key) == -1)
+                {
+                    colDefs.push({"headerName": key, "field": key})
+                }
+            });
+
+            gridOptions.api.setColumnDefs(colDefs)
+            gridOptions.api.setRowData(jsonArray);
+      }
+
+      function getQueryResult(dbName, queryText) {
+			showSpinner();
+            fetch(baseUrl + '/websqlclient/records', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json;charset=utf-8'},
+                body: JSON.stringify({"DBName" : dbName, "QueryText": queryText})
+                })
+                .then(res => res.json())
+                .then(res => {
+					hideSpinner();
+                    if (res.hasOwnProperty('error') && res.error.length > 0) {
+                        alert("Query execution failed: \n" + res.error);
+                        gridOptions.api.setColumnDefs(defaultColDefs)
+                        gridOptions.api.setRowData(defaultRowData);
+                        return;
+                    } else {
+                        updateQueryResultGrid(res);
+                        toggleDisplay('rightPaneTop', 'rightPaneBottom', 'queryResultGrid');
+                    }
+                });
+      }
+
+      function getSavedQueryNames() {
+            var savedQueries = [];
+            for (var i = 0; i < localStorage.length; i++)   {
+                console.log(localStorage.key(i) + "=[" + localStorage.getItem(localStorage.key(i)) + "]");
+                savedQueries.push(localStorage.key(i));
+            }
+            return savedQueries.sort();
+        }
+
+      function saveQuery(queryNameCtrlId, queryTextCtrlId) {
+            var name = document.getElementById(queryNameCtrlId).value;
+            var query = document.getElementById(queryTextCtrlId).value;
+
+            if (name.length == 0) {
+                alert('Please enter a name.  Query not saved !');
+                return false;
+            } else if (query.length == 0) {
+                alert('Please enter the query.  Query not saved !');
+                return false;
+            } else {
+                localStorage.setItem(name, query);
+                savedSqls = getSavedQueryNames();
+
+                globalVar.refreshSavedQueries(savedSqls);
+                return true;
+            }
+        }
+
+        function saveDBConnection(dbNameCtrlId, connStrCtrlId) {
+            var name = document.getElementById(dbNameCtrlId).value;
+            var connStr = document.getElementById(connStrCtrlId).value;
+
+            if (name.length == 0) {
+                alert('Please enter a name.  DB Connection not saved !');
+                return false;
+            } else if (connStr.length == 0) {
+                alert('Please enter the connection string.  DB Connection not saved !');
+                return false;
+            } else {
+                saveDBConn(name, connStr);
+                return true;
+            }
+        }
+
+        function saveDBConn(dbName, connStr) {
+			showSpinner();
+            fetch(baseUrl + '/websqlclient/databases', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json;charset=utf-8'},
+                body: JSON.stringify({"DBName" : dbName, "ConnectionString": connStr})
+                })
+                .then(res => res.json())
+                .then(res => {
+					hideSpinner();
+                    if (res.hasOwnProperty('error') && res.error.length > 0) {
+                        alert("Add DB Connection failed: \n" + res.error);
+                        return;
+                    } else {
+                        globalVar.refreshDBConnections(res);
+                    }
+                });
+      }
+
+      function deleteDBConnection(dbName) {
+			showSpinner();
+            fetch(baseUrl + '/websqlclient/databases?dbName=' + dbName, {
+                method: 'DELETE',
+                headers: {},
+                })
+                .then(res => res.json())
+                .then(res => {
+					hideSpinner();	
+                    if (res.hasOwnProperty('error') && res.error.length > 0) {
+                        alert("Delete DB Connection failed: \n" + res.error);
+                        return;
+                    } else {
+                        globalVar.refreshDBConnections(res);
+                    }
+                });
+      }
+
+      function getDBConnections() {
+			showSpinner();
+            fetch(baseUrl + '/websqlclient/databases', {
+                method: 'GET',
+                headers: {}
+                })
+                .then(res => res.json())
+                .then(res => {
+					hideSpinner();
+                    if (res.hasOwnProperty('error') && res.error.length > 0) {
+                        alert("Error getting DB Connections: \n" + res.error);
+                        return;
+                    } else {
+                        globalVar.refreshDBConnections(res);
+                    }
+                });
+      }
+
+      function downloadResultsAsCsv() {
+        var params = {
+            suppressQuotes: true,
+            columnSeparator: ",",
+            customHeader: "",
+            customFooter: "",
+        };
+        gridOptions.api.exportDataAsCsv(params);
+      }
+
+    </script>
+
+</body>
+</html>
